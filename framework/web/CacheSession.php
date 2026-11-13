@@ -1,13 +1,13 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\web;
 
-use Yii;
 use yii\caching\CacheInterface;
 use yii\di\Instance;
 
@@ -24,14 +24,14 @@ use yii\di\Instance;
  * The following example shows how you can configure the application to use CacheSession:
  * Add the following to your application config under `components`:
  *
- * ```php
+ * ```
  * 'session' => [
  *     'class' => 'yii\web\CacheSession',
  *     // 'cache' => 'mycache',
  * ]
  * ```
  *
- * @property-read bool $useCustomStorage Whether to use custom storage. This property is read-only.
+ * @property-read bool $useCustomStorage Whether to use custom storage.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
@@ -78,22 +78,26 @@ class CacheSession extends Session
      */
     public function openSession($savePath, $sessionName)
     {
-        if ($this->getUseStrictMode()) {
-            $id = $this->getId();
-            if (!$this->cache->exists($this->calculateKey($id))) {
-                //This session id does not exist, mark it for forced regeneration
-                $this->_forceRegenerateId = $id;
-            }
-        }
-
         return parent::openSession($savePath, $sessionName);
+    }
+
+    /**
+     * Session ID existence check handler.
+     * @internal Do not call this method directly.
+     * @param string $id session ID
+     * @return bool whether a session with the given ID exists in [[cache]]
+     * @since 2.0.56
+     */
+    public function sessionIdExists($id)
+    {
+        return $this->cache->exists($this->calculateKey($id));
     }
 
     /**
      * Session read handler.
      * @internal Do not call this method directly.
      * @param string $id session ID
-     * @return string the session data
+     * @return string|false the session data, or false on failure
      */
     public function readSession($id)
     {
@@ -111,11 +115,6 @@ class CacheSession extends Session
      */
     public function writeSession($id, $data)
     {
-        if ($this->getUseStrictMode() && $id === $this->_forceRegenerateId) {
-            //Ignore write when forceRegenerate is active for this id
-            return true;
-        }
-
         return $this->cache->set($this->calculateKey($id), $data, $this->getTimeout());
     }
 

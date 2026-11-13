@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yiiunit\framework\web;
@@ -12,7 +13,40 @@ use yiiunit\TestCase;
 
 class MultipartFormDataParserTest extends TestCase
 {
-    public function testParse()
+    public function testParseWithBoundaryFollowedByAdditionalParameters(): void
+    {
+        $parser = new MultipartFormDataParser();
+
+        $boundary = '---------------------------22472926011618';
+        $rawBody = "--{$boundary}\nContent-Disposition: form-data; name=\"title\"\r\n\r\ntest-title";
+        $rawBody .= "\r\n--{$boundary}--";
+
+        foreach (
+            [
+                'multipart/form-data; boundary=' . $boundary . '; charset=utf-8',
+                'multipart/form-data; boundary="' . $boundary . '"; charset=utf-8',
+                'multipart/form-data; x-boundary=wrong; boundary=' . $boundary,
+                'multipart/form-data; foo="a; boundary=wrong"; boundary=' . $boundary,
+                'multipart/form-data; charset="boundary=abc"; boundary=' . $boundary,
+                'multipart/form-data; charset="boundary=abc"; boundary="' . $boundary . '"',
+            ] as $contentType
+        ) {
+            $bodyParams = $parser->parse($rawBody, $contentType);
+            $this->assertSame(['title' => 'test-title'], $bodyParams, 'Content-Type: ' . $contentType);
+        }
+    }
+
+    public function testParseWithoutBoundary(): void
+    {
+        $parser = new MultipartFormDataParser();
+
+        $this->assertSame([], $parser->parse("--irrelevant\r\n\r\ndata", 'multipart/form-data'));
+        $this->assertSame([], $parser->parse('--irrelevant', 'multipart/form-data; boundary='));
+        $this->assertSame([], $parser->parse('--irrelevant', 'multipart/form-data; boundary=""'));
+        $this->assertSame([], $parser->parse('--irrelevant', 'multipart/form-data; boundary=""; charset=utf-8'));
+    }
+
+    public function testParse(): void
     {
         if (defined('HHVM_VERSION')) {
             static::markTestSkipped('Can not test on HHVM because it does not support proper handling of the temporary files.');
@@ -52,7 +86,7 @@ class MultipartFormDataParserTest extends TestCase
         $this->assertStringEqualsFile($_FILES['Item']['tmp_name']['file'], 'item file content');
     }
 
-    public function testParseWithDoubleQuotes()
+    public function testParseWithDoubleQuotes(): void
     {
         if (defined('HHVM_VERSION')) {
             static::markTestSkipped('Can not test on HHVM because it does not support proper handling of the temporary files.');
@@ -91,10 +125,11 @@ class MultipartFormDataParserTest extends TestCase
         $this->assertEquals('text/plain', $_FILES['Item']['type']['file']);
         $this->assertStringEqualsFile($_FILES['Item']['tmp_name']['file'], 'item file content');
     }
+
     /**
      * @depends testParse
      */
-    public function testNotEmptyPost()
+    public function testNotEmptyPost(): void
     {
         $parser = new MultipartFormDataParser();
 
@@ -110,7 +145,7 @@ class MultipartFormDataParserTest extends TestCase
     /**
      * @depends testParse
      */
-    public function testNotEmptyFiles()
+    public function testNotEmptyFiles(): void
     {
         $parser = new MultipartFormDataParser();
 
@@ -132,7 +167,7 @@ class MultipartFormDataParserTest extends TestCase
     /**
      * @depends testParse
      */
-    public function testUploadFileMaxCount()
+    public function testUploadFileMaxCount(): void
     {
         $parser = new MultipartFormDataParser();
         $parser->setUploadFileMaxCount(2);
@@ -151,7 +186,7 @@ class MultipartFormDataParserTest extends TestCase
     /**
      * @depends testParse
      */
-    public function testUploadFileMaxSize()
+    public function testUploadFileMaxSize(): void
     {
         $parser = new MultipartFormDataParser();
         $parser->setUploadFileMaxSize(20);
@@ -168,7 +203,8 @@ class MultipartFormDataParserTest extends TestCase
         $this->assertEquals(UPLOAD_ERR_INI_SIZE, $_FILES['thirdFile']['error']);
     }
 
-    public function testUploadFileAsArray(){
+    public function testUploadFileAsArray(): void
+    {
         $parser = new MultipartFormDataParser();
 
         $boundary = '---------------------------22472926011618';
@@ -189,7 +225,7 @@ class MultipartFormDataParserTest extends TestCase
      * @depends testNotEmptyPost
      * @depends testNotEmptyFiles
      */
-    public function testForce()
+    public function testForce(): void
     {
         $parser = new MultipartFormDataParser();
         $parser->force = true;
@@ -197,6 +233,7 @@ class MultipartFormDataParserTest extends TestCase
         $_POST = [
             'existingName' => 'value',
         ];
+        /** @var array<string, mixed> $_FILES */
         $_FILES = [
             'existingFile' => [
                 'name' => 'file.txt',
@@ -219,8 +256,8 @@ class MultipartFormDataParserTest extends TestCase
         $this->assertNotEmpty($_FILES['someFile']);
         $this->assertFalse(isset($_FILES['existingFile']));
     }
-    
-    public function testParseUnicodeInFileName()
+
+    public function testParseUnicodeInFileName(): void
     {
         $unicodeName = 'х.jpg'; // this is Russian "х"
 

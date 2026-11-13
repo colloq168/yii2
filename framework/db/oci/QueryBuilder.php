@@ -1,15 +1,16 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\db\oci;
 
 use yii\base\InvalidArgumentException;
+use yii\db\ColumnSchemaBuilder;
 use yii\db\Connection;
-use yii\db\Constraint;
 use yii\db\Exception;
 use yii\db\Expression;
 use yii\db\Query;
@@ -111,7 +112,7 @@ EOD;
      *
      * @param string $table the table whose column is to be changed. The table name will be properly quoted by the method.
      * @param string $column the name of the column to be changed. The name will be properly quoted by the method.
-     * @param string $type the new column type. The [[getColumnType]] method will be invoked to convert abstract column type (if any)
+     * @param string|ColumnSchemaBuilder $type the new column type. The [[getColumnType]] method will be invoked to convert abstract column type (if any)
      * into the physical one. Anything that is not recognized as abstract type will be kept in the generated SQL.
      * For example, 'string' will be turned into 'varchar(255)', while 'string not null' will become 'varchar(255) not null'.
      * @return string the SQL statement for changing the definition of a column.
@@ -151,13 +152,13 @@ EOD;
         if ($value !== null) {
             $value = (int) $value;
         } else {
-            if (count($tableSchema->primaryKey)>1) {
+            if (count($tableSchema->primaryKey) > 1) {
                 throw new InvalidArgumentException("Can't reset sequence for composite primary key in table: $table");
             }
             // use master connection to get the biggest PK value
             $value = $this->db->useMaster(function (Connection $db) use ($tableSchema) {
                 return $db->createCommand(
-                    'SELECT MAX("' . $tableSchema->primaryKey[0] . '") FROM "'. $tableSchema->name . '"'
+                    'SELECT MAX("' . $tableSchema->primaryKey[0] . '") FROM "' . $tableSchema->name . '"'
                 )->queryScalar();
             }) + 1;
         }
@@ -213,7 +214,6 @@ EOD;
      */
     public function upsert($table, $insertColumns, $updateColumns, &$params)
     {
-        /** @var Constraint[] $constraints */
         list($uniqueNames, $insertNames, $updateNames) = $this->prepareUpsertColumns($table, $insertColumns, $updateColumns, $constraints);
         if (empty($uniqueNames)) {
             return $this->insert($table, $insertColumns, $params);
@@ -282,7 +282,7 @@ EOD;
      *
      * For example,
      *
-     * ```php
+     * ```
      * $sql = $queryBuilder->batchInsert('user', ['name', 'age'], [
      *     ['Tom', 30],
      *     ['Jane', 20],

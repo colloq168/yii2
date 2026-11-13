@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\db;
@@ -95,6 +96,8 @@ trait ConstraintFinderTrait
      * @param string $name table name. The table name may contain schema name if any. Do not quote the table name.
      * @param bool $refresh whether to reload the information even if it is found in the cache.
      * @return Constraint|null table primary key, `null` if the table has no primary key.
+     *
+     * @phpstan-impure
      */
     public function getTablePrimaryKey($name, $refresh = false)
     {
@@ -191,6 +194,8 @@ trait ConstraintFinderTrait
      * @param string $name table name. The table name may contain schema name if any. Do not quote the table name.
      * @param bool $refresh whether to reload the information even if it is found in the cache.
      * @return CheckConstraint[] table check constraints.
+     *
+     * @phpstan-impure
      */
     public function getTableChecks($name, $refresh = false)
     {

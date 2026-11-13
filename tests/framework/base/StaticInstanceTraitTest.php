@@ -1,9 +1,12 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
+
+declare(strict_types=1);
 
 namespace yiiunit\framework\base;
 
@@ -13,13 +16,13 @@ use yiiunit\TestCase;
 
 class StaticInstanceTraitTest extends TestCase
 {
-    public function testInstance()
+    public function testInstance(): void
     {
         $speakerModel = Speaker::instance();
-        $this->assertTrue($speakerModel instanceof Speaker);
+        $this->assertSame(Speaker::class, get_class($speakerModel));
 
         $singerModel = Singer::instance();
-        $this->assertTrue($singerModel instanceof Singer);
+        $this->assertSame(Singer::class, get_class($singerModel));
 
         $this->assertSame($speakerModel, Speaker::instance());
         $this->assertNotSame($speakerModel, Speaker::instance(true));

@@ -1,15 +1,14 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yiiunit\framework\web;
 
-use Yii;
 use yii\web\UploadedFile;
-use yiiunit\framework\web\mocks\UploadedFileMock;
 use yiiunit\framework\web\stubs\ModelStub;
 use yiiunit\framework\web\stubs\VendorImage;
 use yiiunit\TestCase;
@@ -19,7 +18,7 @@ use yiiunit\TestCase;
  */
 class UploadedFileTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mockApplication();
@@ -48,65 +47,61 @@ class UploadedFileTest extends TestCase
         ];
     }
 
-    private function generateFakeFiles()
+    private function generateFakeFiles(): void
     {
         $_FILES['ModelStub[prod_image]'] = $this->generateFakeFileData();
-        $_FILES['ModelStub[prod_images][]'] = $this->generateFakeFileData();
-        $_FILES['ModelStub[prod_images][]'] = $this->generateFakeFileData();
-        $_FILES['ModelStub[prod_images][]'] = $this->generateFakeFileData();
+        $_FILES['ModelStub[prod_images][0]'] = $this->generateFakeFileData();
+        $_FILES['ModelStub[prod_images][1]'] = $this->generateFakeFileData();
+        $_FILES['ModelStub[prod_images][2]'] = $this->generateFakeFileData();
 
         $_FILES['ModelStub[vendor_image]'] = $this->generateFakeFileData();
-        $_FILES['ModelStub[vendor_images][]'] = $this->generateFakeFileData();
-        $_FILES['ModelStub[vendor_images][]'] = $this->generateFakeFileData();
-        $_FILES['ModelStub[vendor_images][]'] = $this->generateFakeFileData();
+        $_FILES['ModelStub[vendor_images][0]'] = $this->generateFakeFileData();
+        $_FILES['ModelStub[vendor_images][1]'] = $this->generateFakeFileData();
+        $_FILES['ModelStub[vendor_images][2]'] = $this->generateFakeFileData();
 
         $_FILES['ModelStub[temp_image]'] = $this->generateTempFileData();
     }
 
     // Tests :
 
-    public function testGetInstance()
+    public function testGetInstance(): void
     {
         $productImage = UploadedFile::getInstance(new ModelStub(), 'prod_image');
         $vendorImage = VendorImage::getInstance(new ModelStub(), 'vendor_image');
 
-        $this->assertInstanceOf(UploadedFile::className(), $productImage);
-        $this->assertInstanceOf(VendorImage::className(), $vendorImage);
+        $this->assertInstanceOf(UploadedFile::class, $productImage);
+        $this->assertInstanceOf(VendorImage::class, $vendorImage);
     }
 
-    public function testGetInstances()
+    public function testGetInstances(): void
     {
         $productImages = UploadedFile::getInstances(new ModelStub(), 'prod_images');
         $vendorImages = VendorImage::getInstances(new ModelStub(), 'vendor_images');
 
-        foreach ($productImages as $productImage) {
-            $this->assertInstanceOf(UploadedFile::className(), $productImage);
-        }
-
-        foreach ($vendorImages as $vendorImage) {
-            $this->assertInstanceOf(VendorImage::className(), $vendorImage);
-        }
+        $this->assertCount(3, $productImages);
+        $this->assertCount(3, $vendorImages);
     }
 
-    public function testSaveAs()
+    public function testSaveAs(): void
     {
         $tmpImage = UploadedFile::getInstance(new ModelStub(), 'temp_image');
         $targetFile = '@runtime/test_saved_uploaded_file_' . time();
 
         $this->assertEquals(true, $tmpImage->saveAs($targetFile, $deleteTempFile = false));
-        $this->markTestIncomplete("`$deleteTempFile` flag simply uses php's move_uploaded_file() method, so this not work in test");
-
         @unlink($targetFile);
+
+        $this->markTestIncomplete("`$deleteTempFile` flag simply uses php's move_uploaded_file() method, so this not work in test");
     }
 
-    public function testSaveFileFromMultipartFormDataParser()
+    public function testSaveFileFromMultipartFormDataParser(): void
     {
+        /** @var array<string, mixed> $_FILES */
         $_FILES = [];
         UploadedFile::reset();
         $model = new ModelStub();
         $targetFile = '@runtime/test_saved_uploaded_file_' . time();
 
-        (new MultipartFormDataParserTest)->testParse();
+        (new MultipartFormDataParserTest())->testParse();
         $_FILES['ModelStub'] = $_FILES['Item']; // $_FILES[Item] here from testParse() above
         $tmpFile = UploadedFile::getInstance($model, 'file');
 

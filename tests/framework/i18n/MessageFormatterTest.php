@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yiiunit\framework\i18n;
@@ -17,19 +18,19 @@ use yiiunit\TestCase;
  */
 class MessageFormatterTest extends TestCase
 {
-    const N = 'n';
-    const N_VALUE = 42;
-    const F = 'f';
-    const F_VALUE = 2e+8;
-    const F_VALUE_FORMATTED = '200,000,000';
-    const D = 'd';
-    const D_VALUE = 200000000.101;
-    const D_VALUE_FORMATTED = '200,000,000.101';
-    const D_VALUE_FORMATTED_INTEGER = '200,000,000';
-    const SUBJECT = 'сабж';
-    const SUBJECT_VALUE = 'Answer to the Ultimate Question of Life, the Universe, and Everything';
+    public const N = 'n';
+    public const N_VALUE = 42;
+    public const F = 'f';
+    public const F_VALUE = 2e+8;
+    public const F_VALUE_FORMATTED = '200,000,000';
+    public const D = 'd';
+    public const D_VALUE = 200000000.101;
+    public const D_VALUE_FORMATTED = '200,000,000.101';
+    public const D_VALUE_FORMATTED_INTEGER = '200,000,000';
+    public const SUBJECT = 'сабж';
+    public const SUBJECT_VALUE = 'Answer to the Ultimate Question of Life, the Universe, and Everything';
 
-    public function patterns()
+    public static function patterns(): array
     {
         return [
             [
@@ -110,8 +111,6 @@ _MSG_
                     'host' => 'ralph',
                     'guest' => 'beep',
                 ],
-                defined('INTL_ICU_VERSION') && version_compare(INTL_ICU_VERSION, '4.8', '<'),
-                'select format is available in ICU > 4.4 and plural format with =X selector is avilable since 4.8',
             ],
 
             [
@@ -121,8 +120,6 @@ _MSG_
                     'name' => 'Alexander',
                     'gender' => 'male',
                 ],
-                defined('INTL_ICU_VERSION') && version_compare(INTL_ICU_VERSION, '4.4.2', '<'),
-                'select format is available in ICU > 4.4',
             ],
 
             // verify pattern in select does not get replaced
@@ -137,8 +134,6 @@ _MSG_
                     'she' => 'wtf',
                     'it' => 'wtf',
                 ],
-                defined('INTL_ICU_VERSION') && version_compare(INTL_ICU_VERSION, '4.4.2', '<'),
-                'select format is available in ICU > 4.4',
             ],
 
             // verify pattern in select message gets replaced
@@ -151,8 +146,6 @@ _MSG_
                     'he' => 'wtf',
                     'she' => 'wtf',
                 ],
-                defined('INTL_ICU_VERSION') && version_compare(INTL_ICU_VERSION, '4.8', '<'),
-                'parameters in select format do not seem to work in ICU < 4.8',
             ],
 
             // some parser specific verifications
@@ -165,8 +158,6 @@ _MSG_
                     'he' => 'wtf',
                     'she' => 'wtf',
                 ],
-                defined('INTL_ICU_VERSION') && version_compare(INTL_ICU_VERSION, '4.4.2', '<'),
-                'select format is available in ICU > 4.4',
             ],
 
             // formatting a message that contains params but they are not provided.
@@ -275,7 +266,7 @@ _MSG_
         ];
     }
 
-    public function parsePatterns()
+    public static function parsePatterns(): array
     {
         return [
             [
@@ -353,14 +344,9 @@ _MSG_
      * @param string $pattern
      * @param string $expected
      * @param array $args
-     * @param bool $skip
-     * @param string $skipMessage
      */
-    public function testNamedArguments($pattern, $expected, $args, $skip = false, $skipMessage = '')
+    public function testNamedArguments($pattern, $expected, $args): void
     {
-        if ($skip) {
-            $this->markTestSkipped($skipMessage);
-        }
         $formatter = new MessageFormatter();
         $result = $formatter->format($pattern, $args, 'en-US');
         $this->assertEquals($expected, $result, $formatter->getErrorMessage());
@@ -373,7 +359,7 @@ _MSG_
      * @param array $args
      * @param string $locale
      */
-    public function testParseNamedArguments($pattern, $expected, $args, $locale = 'en-US')
+    public function testParseNamedArguments($pattern, $expected, $args, $locale = 'en-US'): void
     {
         if (!extension_loaded('intl')) {
             $this->markTestSkipped('intl not installed. Skipping.');
@@ -384,7 +370,7 @@ _MSG_
         $this->assertEquals($args, $result, $formatter->getErrorMessage() . ' Pattern: ' . $pattern);
     }
 
-    public function testInsufficientArguments()
+    public function testInsufficientArguments(): void
     {
         $expected = '{' . self::SUBJECT . '} is ' . self::N_VALUE;
 
@@ -396,7 +382,7 @@ _MSG_
         $this->assertEquals($expected, $result, $formatter->getErrorMessage());
     }
 
-    public function testNoParams()
+    public function testNoParams(): void
     {
         $pattern = '{' . self::SUBJECT . '} is ' . self::N;
         $formatter = new MessageFormatter();
@@ -404,7 +390,7 @@ _MSG_
         $this->assertEquals($pattern, $result, $formatter->getErrorMessage());
     }
 
-    public function testMalformedFormatter()
+    public function testMalformedFormatter(): void
     {
         $formatter = new MessageFormatter();
         $result = $formatter->format('{word,umber}', ['word' => 'test'], 'en-US'); // typo is intentional, message pattern should be invalid

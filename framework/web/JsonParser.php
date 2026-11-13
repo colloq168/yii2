@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\web;
@@ -15,7 +16,7 @@ use yii\helpers\Json;
  *
  * To enable parsing for JSON requests you can configure [[Request::parsers]] using this class:
  *
- * ```php
+ * ```
  * 'request' => [
  *     'parsers' => [
  *         'application/json' => 'yii\web\JsonParser',
@@ -42,7 +43,7 @@ class JsonParser implements RequestParserInterface
      * Parses a HTTP request body.
      * @param string $rawBody the raw HTTP request body.
      * @param string $contentType the content type specified for the request body.
-     * @return array|\stdClass parameters parsed from the request body
+     * @return mixed parameters parsed from the request body
      * @throws BadRequestHttpException if the body contains invalid json and [[throwException]] is `true`.
      */
     public function parse($rawBody, $contentType)

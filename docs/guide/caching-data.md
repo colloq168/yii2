@@ -58,7 +58,7 @@ such as memory, files, databases.
 Cache components are usually registered as [application components](structure-application-components.md) so
 that they can be globally configurable
 and accessible. The following code shows how to configure the `cache` application component to use
-[memcached](http://memcached.org/) with two cache servers:
+[memcached](https://memcached.org/) with two cache servers:
 
 ```php
 'components' => [
@@ -81,6 +81,8 @@ and accessible. The following code shows how to configure the `cache` applicatio
 ```
 
 You can then access the above cache component using the expression `Yii::$app->cache`.
+
+If no cache component is specified, then Yii will use [yii\caching\FileCache](https://www.yiiframework.com/doc/api/2.0/yii-caching-filecache) as default.
 
 Because all cache components support the same set of APIs, you can swap the underlying cache component
 with a different one by reconfiguring it in the application configuration without modifying the code that uses the cache.
@@ -124,15 +126,10 @@ Yii supports a wide range of cache storage. The following is a summary:
   and [memcached](https://www.php.net/manual/en/book.memcached.php) extensions. This option can be considered as
   the fastest one when dealing with cache in a distributed applications (e.g. with several servers, load
   balancers, etc.)
-* [[yii\redis\Cache]]: implements a cache component based on [Redis](http://redis.io/) key-value store
+* [[yii\redis\Cache]]: implements a cache component based on [Redis](https://redis.io/) key-value store
   (redis version 2.6.12 or higher is required).
-* [[yii\caching\WinCache]]: uses PHP [WinCache](http://iis.net/downloads/microsoft/wincache-extension)
+* [[yii\caching\WinCache]]: uses PHP [WinCache](https://iis.net/downloads/microsoft/wincache-extension)
   ([see also](https://www.php.net/manual/en/book.wincache.php)) extension.
-* [[yii\caching\XCache]] _(deprecated)_: uses PHP [XCache](https://en.wikipedia.org/wiki/List_of_PHP_accelerators#XCache) extension.
-* [[yii\caching\ZendDataCache]] _(deprecated)_: uses
-  [Zend Data Cache](http://files.zend.com/help/Zend-Server-6/zend-server.htm#data_cache_component.htm)
-  as the underlying caching medium.
-
 
 > Tip: You may use different cache storage in the same application. A common strategy is to use memory-based
   cache storage to store data that is small but constantly used (e.g. statistical data), and use file-based
@@ -275,6 +272,7 @@ Below is a summary of the available cache dependencies:
 - [[yii\caching\ChainedDependency]]: the dependency is changed if any of the dependencies on the chain is changed.
 - [[yii\caching\DbDependency]]: the dependency is changed if the query result of the specified SQL statement is changed.
 - [[yii\caching\ExpressionDependency]]: the dependency is changed if the result of the specified PHP expression is changed.
+- [[yii\caching\CallbackDependency]]: the dependency is changed if the result of the specified PHP callback is changed.
 - [[yii\caching\FileDependency]]: the dependency is changed if the file's last modification time is changed.
 - [[yii\caching\TagDependency]]: associates a cached data item with one or multiple tags. You may invalidate
   the cached data items with the specified tag(s) by calling [[yii\caching\TagDependency::invalidate()]].
@@ -282,6 +280,11 @@ Below is a summary of the available cache dependencies:
 > Note: Avoid using [[yii\caching\Cache::exists()|exists()]] method along with dependencies. It does not check whether
   the dependency associated with the cached data, if there is any, has changed. So a call to
   [[yii\caching\Cache::get()|get()]] may return `false` while [[yii\caching\Cache::exists()|exists()]] returns `true`.
+
+> Warning: Cached values are stored with PHP's native `serialize()` and read back with `unserialize()`, including any
+  attached [[yii\caching\Dependency]] object. Treat the cache backend as trusted storage: never let untrusted parties
+  write to it, since deserializing crafted bytes can instantiate arbitrary objects. See
+  [Avoiding unsafe deserialization](security-best-practices.md#avoiding-unsafe-deserialization).
 
 
 ## Query Caching <span id="query-caching"></span>
@@ -418,7 +421,7 @@ of each entry to be 1MB. Therefore, if the size of a query result exceeds this l
 the caching will fail.
 
 
-## Cache Flushing <span id="cache-flushing">
+## Cache Flushing <span id="cache-flushing"></span>
 
 When you need to invalidate all the stored cache data, you can call [[yii\caching\Cache::flush()]].
 
@@ -431,4 +434,3 @@ You can flush the cache from the console by calling `yii cache/flush` as well.
 
 > Info: Console application uses a separate configuration file by default. Ensure, that you have the same caching
 components in your web and console application configs to reach the proper effect.
-

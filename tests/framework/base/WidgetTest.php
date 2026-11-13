@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yiiunit\framework\base;
@@ -21,26 +22,25 @@ class WidgetTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         Widget::$counter = 0;
         Widget::$stack = [];
     }
 
-    public function testWidget()
+    public function testWidget(): void
     {
         $output = TestWidget::widget(['id' => 'test']);
         $this->assertSame('<run-test>', $output);
     }
 
-    public function testBeginEnd()
+    public function testBeginEnd(): void
     {
         ob_start();
         ob_implicit_flush(false);
 
-        $widget = TestWidget::begin(['id' => 'test']);
-        $this->assertTrue($widget instanceof TestWidget);
+        TestWidget::begin(['id' => 'test']);
         TestWidget::end();
 
         $output = ob_get_clean();
@@ -51,12 +51,12 @@ class WidgetTest extends TestCase
     /**
      * @see https://github.com/yiisoft/yii2/issues/19030
      */
-    public function testDependencyInjection()
+    public function testDependencyInjection(): void
     {
         Yii::$container = new Container();
         Yii::$container->setDefinitions([
-            TestWidgetB::className() => [
-                'class' => TestWidget::className()
+            TestWidgetB::class => [
+                'class' => TestWidget::class
             ]
         ]);
 
@@ -64,7 +64,30 @@ class WidgetTest extends TestCase
         ob_implicit_flush(false);
 
         $widget = TestWidgetB::begin(['id' => 'test']);
-        $this->assertTrue($widget instanceof TestWidget);
+
+        $this->assertInstanceOf(TestWidget::class, $widget);
+        TestWidgetB::end();
+
+        $output = ob_get_clean();
+
+        $this->assertSame('<run-test>', $output);
+    }
+
+    public function testDependencyInjectionWithCallableConfiguration(): void
+    {
+        Yii::$container = new Container();
+        Yii::$container->setDefinitions([
+            TestWidgetB::class => function () {
+                return new TestWidget(['id' => 'test']);
+            }
+        ]);
+
+        ob_start();
+        ob_implicit_flush(false);
+
+        $widget = TestWidgetB::begin(['id' => 'test']);
+
+        $this->assertInstanceOf(TestWidget::class, $widget);
         TestWidgetB::end();
 
         $output = ob_get_clean();
@@ -75,7 +98,7 @@ class WidgetTest extends TestCase
     /**
      * @depends testBeginEnd
      */
-    public function testStackTracking()
+    public function testStackTracking(): void
     {
         $this->expectException('yii\base\InvalidCallException');
         TestWidget::end();
@@ -84,7 +107,7 @@ class WidgetTest extends TestCase
     /**
      * @depends testBeginEnd
      */
-    public function testStackTrackingDisorder()
+    public function testStackTrackingDisorder(): void
     {
         $this->expectException('yii\base\InvalidCallException');
         TestWidgetA::begin();
@@ -93,11 +116,10 @@ class WidgetTest extends TestCase
         TestWidgetB::end();
     }
 
-
     /**
      * @depends testWidget
      */
-    public function testEvents()
+    public function testEvents(): void
     {
         $output = TestWidget::widget([
             'id' => 'test',
@@ -117,7 +139,7 @@ class WidgetTest extends TestCase
     /**
      * @depends testEvents
      */
-    public function testPreventRun()
+    public function testPreventRun(): void
     {
         $output = TestWidget::widget([
             'id' => 'test',

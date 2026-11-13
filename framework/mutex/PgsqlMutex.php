@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mutex;
@@ -37,7 +38,6 @@ class PgsqlMutex extends DbMutex
 {
     use RetryAcquireTrait;
 
-
     /**
      * Initializes PgSQL specific mutex component implementation.
      * @throws InvalidConfigException if [[db]] is not PgSQL connection.
@@ -51,13 +51,19 @@ class PgsqlMutex extends DbMutex
     }
 
     /**
-     * Converts a string into two 16 bit integer keys using the SHA1 hash function.
+     * Converts a string into two 32 bit integer keys using the first 8 bytes of the SHA1 hash function.
      * @param string $name
-     * @return array contains two 16 bit integer keys
+     * @return array contains two 32 bit integer keys
      */
     private function getKeysFromName($name)
     {
-        return array_values(unpack('n2', sha1($name, true)));
+        $keys = unpack('N2', substr(sha1($name, true), 0, 8));
+
+        // PostgreSQL advisory locks accept two signed 4-byte integers, while unpack('N')
+        // produces unsigned values. Convert values above the signed range accordingly.
+        return array_values(array_map(static function ($key) {
+            return $key > 0x7FFFFFFF ? $key - 0x100000000 : $key;
+        }, $keys));
     }
 
     /**
@@ -65,7 +71,7 @@ class PgsqlMutex extends DbMutex
      * @param string $name of the lock to be acquired.
      * @param int $timeout time (in seconds) to wait for lock to become released.
      * @return bool acquiring result.
-     * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
+     * @see https://www.postgresql.org/docs/9.0/functions-admin.html
      */
     protected function acquireLock($name, $timeout = 0)
     {
@@ -86,7 +92,7 @@ class PgsqlMutex extends DbMutex
      * Releases lock by given name.
      * @param string $name of the lock to be released.
      * @return bool release result.
-     * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
+     * @see https://www.postgresql.org/docs/9.0/functions-admin.html
      */
     protected function releaseLock($name)
     {

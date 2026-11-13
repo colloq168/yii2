@@ -1,16 +1,17 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\db\sqlite;
 
 use yii\base\InvalidArgumentException;
 use yii\base\NotSupportedException;
+use yii\db\ColumnSchemaBuilder;
 use yii\db\Connection;
-use yii\db\Constraint;
 use yii\db\Expression;
 use yii\db\ExpressionInterface;
 use yii\db\Query;
@@ -69,7 +70,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
      */
     public function upsert($table, $insertColumns, $updateColumns, &$params)
     {
-        /** @var Constraint[] $constraints */
         list($uniqueNames, $insertNames, $updateNames) = $this->prepareUpsertColumns($table, $insertColumns, $updateColumns, $constraints);
         if (empty($uniqueNames)) {
             return $this->insert($table, $insertColumns, $params);
@@ -118,7 +118,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      *
      * For example,
      *
-     * ```php
+     * ```
      * $connection->createCommand()->batchInsert('user', ['name', 'age'], [
      *     ['Tom', 30],
      *     ['Jane', 20],
@@ -140,7 +140,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
         }
 
         // SQLite supports batch insert natively since 3.7.11
-        // http://www.sqlite.org/releaselog/3_7_11.html
+        // https://www.sqlite.org/releaselog/3_7_11.html
         $this->db->open(); // ensure pdo is not null
         if (version_compare($this->db->getServerVersion(), '3.7.11', '>=')) {
             return parent::batchInsert($table, $columns, $rows, $params);
@@ -290,8 +290,8 @@ class QueryBuilder extends \yii\db\QueryBuilder
      * @param string $refTable the table that the foreign key references to.
      * @param string|array $refColumns the name of the column that the foreign key references to.
      * If there are multiple columns, separate them with commas or use an array to represent them.
-     * @param string $delete the ON DELETE option. Most DBMS support these options: RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL
-     * @param string $update the ON UPDATE option. Most DBMS support these options: RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL
+     * @param string|null $delete the ON DELETE option. Most DBMS support these options: RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL
+     * @param string|null $update the ON UPDATE option. Most DBMS support these options: RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL
      * @return string the SQL statement for adding a foreign key constraint to an existing table.
      * @throws NotSupportedException this is not supported by SQLite
      */
@@ -328,7 +328,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      * Builds a SQL statement for changing the definition of a column.
      * @param string $table the table whose column is to be changed. The table name will be properly quoted by the method.
      * @param string $column the name of the column to be changed. The name will be properly quoted by the method.
-     * @param string $type the new column type. The [[getColumnType()]] method will be invoked to convert abstract
+     * @param string|ColumnSchemaBuilder $type the new column type. The [[getColumnType()]] method will be invoked to convert abstract
      * column type (if any) into the physical one. Anything that is not recognized as abstract type will be kept
      * in the generated SQL. For example, 'string' will be turned into 'varchar(255)', while 'string not null'
      * will become 'varchar(255) not null'.
@@ -472,7 +472,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
             }
         } elseif ($this->hasOffset($offset)) {
             // limit is not optional in SQLite
-            // http://www.sqlite.org/syntaxdiagrams.html#select-stmt
+            // https://www.sqlite.org/syntaxdiagrams.html#select-stmt
             $sql = "LIMIT 9223372036854775807 OFFSET $offset"; // 2^63-1
         }
 
@@ -560,7 +560,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
 
         $schema = null;
         if (count($tableParts) === 2) {
-            list ($schema, $table) = $tableParts;
+            list($schema, $table) = $tableParts;
         }
 
         return ($unique ? 'CREATE UNIQUE INDEX ' : 'CREATE INDEX ')

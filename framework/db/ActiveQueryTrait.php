@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\db;
@@ -17,16 +18,18 @@ namespace yii\db;
 trait ActiveQueryTrait
 {
     /**
-     * @var string the name of the ActiveRecord class.
+     * @var class-string<ActiveRecordInterface> the name of the ActiveRecord class.
      */
     public $modelClass;
     /**
-     * @var array a list of relations that this query should be performed with
+     * @var array|null a list of relations that this query should be performed with
      */
     public $with;
     /**
-     * @var bool whether to return each record as an array. If false (default), an object
-     * of [[modelClass]] will be created to represent each record.
+     * @var bool|null whether to return each record as an array. If true, each record is returned
+     * as an array. If false, an object of [[modelClass]] will be created to represent each record.
+     * Defaults to null, which means that a relation query used for eager loading inherits this
+     * setting from the primary query. If no setting is inherited, objects are returned.
      */
     public $asArray;
 
@@ -55,7 +58,7 @@ trait ActiveQueryTrait
      *
      * The following are some usage examples:
      *
-     * ```php
+     * ```
      * // find customers together with their orders and country
      * Customer::find()->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
@@ -72,7 +75,7 @@ trait ActiveQueryTrait
      * You can call `with()` multiple times. Each call will add relations to the existing ones.
      * For example, the following two statements are equivalent:
      *
-     * ```php
+     * ```
      * Customer::find()->with('orders', 'country')->all();
      * Customer::find()->with('orders')->with('country')->all();
      * ```
@@ -106,7 +109,7 @@ trait ActiveQueryTrait
     /**
      * Converts found rows into model instances.
      * @param array $rows
-     * @return array|ActiveRecord[]
+     * @return array
      * @since 2.0.11
      */
     protected function createModels($rows)
@@ -115,7 +118,7 @@ trait ActiveQueryTrait
             return $rows;
         } else {
             $models = [];
-            /* @var $class ActiveRecord */
+            /** @var ActiveRecord $class */
             $class = $this->modelClass;
             foreach ($rows as $row) {
                 $model = $class::instantiate($row);
@@ -131,18 +134,22 @@ trait ActiveQueryTrait
      * Finds records corresponding to one or multiple relations and populates them into the primary models.
      * @param array $with a list of relations that this query should be performed with. Please
      * refer to [[with()]] for details about specifying this parameter.
-     * @param array|ActiveRecord[] $models the primary models (can be either AR instances or arrays)
+     * @param array $models the primary models (can be either AR instances or arrays)
      */
     public function findWith($with, &$models)
     {
+        if (empty($models)) {
+            return;
+        }
+
         $primaryModel = reset($models);
         if (!$primaryModel instanceof ActiveRecordInterface) {
-            /* @var $modelClass ActiveRecordInterface */
+            /** @var ActiveRecordInterface $modelClass */
             $modelClass = $this->modelClass;
             $primaryModel = $modelClass::instance();
         }
         $relations = $this->normalizeRelations($primaryModel, $with);
-        /* @var $relation ActiveQuery */
+        /** @var ActiveQuery $relation */
         foreach ($relations as $name => $relation) {
             if ($relation->asArray === null) {
                 // inherit asArray from primary query

@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yiiunit\framework\rbac;
@@ -25,6 +26,7 @@ class ActionRule extends Rule
      * @see https://github.com/yiisoft/yii2/issues/10176
      * @see https://github.com/yiisoft/yii2/issues/12681
      */
+    // @phpstan-ignore property.unused (The property is only needed to test serialization of the rule)
     private $somePrivateProperty;
     protected $someProtectedProperty;
 

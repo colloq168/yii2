@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yiiunit\framework\i18n;
@@ -15,7 +16,7 @@ use yiiunit\TestCase;
  */
 class GettextMoFileTest extends TestCase
 {
-    public function testLoad()
+    public function testLoad(): void
     {
         $moFile = new GettextMoFile();
         $moFilePath = __DIR__ . '/../../data/i18n/test.mo';
@@ -45,7 +46,21 @@ class GettextMoFileTest extends TestCase
         $this->assertTrue(in_array("тест1\\nтест2\n\\\nтест3", $context2));
     }
 
-    public function testSave()
+    /**
+     * @see https://github.com/yiisoft/yii2/issues/14402
+     */
+    public function testLoadDoesNotMatchContextByPrefix(): void
+    {
+        $moFile = new GettextMoFile();
+        $moFilePath = __DIR__ . '/../../data/i18n/test.mo';
+
+        $this->assertSame([], $moFile->load($moFilePath, 'context1/sub'));
+        $this->assertSame([], $moFile->load($moFilePath, 'context10'));
+        $this->assertSame([], $moFile->load($moFilePath, 'context'));
+        $this->assertCount(3, $moFile->load($moFilePath, 'context1'));
+    }
+
+    public function testSave(): void
     {
         // initial data
         $s = chr(4);

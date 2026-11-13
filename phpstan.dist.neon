@@ -1,0 +1,48 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 4
+
+    treatPhpDocTypesAsCertain: false
+    reportIgnoresWithoutComments: true
+
+    paths:
+        - build
+        - framework
+        - tests
+
+    excludePaths:
+        analyse:
+            - tests/data
+            - tests/framework/db/enums
+            - tests/framework/*/stubs/*
+            - tests/framework/*/mocks/*
+
+    bootstrapFiles:
+        - framework/BaseYii.php
+
+    dynamicConstantNames:
+        - YII_DEBUG
+        - YII_ENV
+        - YII_ENV_DEV
+        - YII_ENV_PROD
+        - YII_ENV_TEST
+
+    ignoreErrors:
+        -
+            # `new static()` is used intentionally for late static binding; making constructors final would break BC
+            message: '#Unsafe usage of new static\(\).#'
+        -
+            # `BaseObject::init()` is an empty hook meant to be overridden, so `parent::init()` calls are intentional
+            message: '#^Call to yii\\base\\BaseObject\:\:init\(\) on a separate line has no effect\.$#'
+            identifier: staticMethod.resultUnused
+        -
+            # `Fixture::unload()` is an empty hook meant to be overridden, so `parent::unload()` calls are intentional
+            message: '#^Call to yii\\test\\Fixture\:\:unload\(\) on a separate line has no effect\.$#'
+            identifier: staticMethod.resultUnused
+        -
+            # `BaseHtmlPurifier::configure()` is an empty hook meant to be overridden in `HtmlPurifier`, so `static::configure()` calls are intentional
+            message: '#^Call to yii\\helpers\\BaseHtmlPurifier\:\:configure\(\) on a separate line has no effect\.$#'
+            identifier: staticMethod.resultUnused

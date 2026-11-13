@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\helpers;
@@ -30,7 +31,6 @@ class BaseJson
      * @since 2.0.43
      */
     public static $prettyPrint;
-
     /**
      * @var bool Avoids objects with zero-indexed keys to be encoded as array
      * `Json::encode((object)['test'])` will be encoded as an object not as an array. This matches the behaviour of `json_encode()`.
@@ -40,7 +40,6 @@ class BaseJson
      * @since 2.0.44
      */
     public static $keepObjectType = false;
-
     /**
      * @var array List of JSON Error messages assigned to constant names for better handling of PHP <= 5.5.
      * @since 2.0.7
@@ -187,6 +186,12 @@ class BaseJson
 
             if ($data instanceof Arrayable) {
                 $data = $data->toArray();
+            } elseif ($data instanceof \Generator) {
+                $_data = [];
+                foreach ($data as $name => $value) {
+                    $_data[$name] = static::processData($value, $expressions, $expPrefix);
+                }
+                $data = $_data;
             } elseif ($data instanceof \SimpleXMLElement) {
                 $data = (array) $data;
 
@@ -228,7 +233,7 @@ class BaseJson
     /**
      * Generates a summary of the validation errors.
      *
-     * @param Model|Model[] $models the model(s) whose validation errors are to be displayed.
+     * @param Model|array<Model> $models the model(s) whose validation errors are to be displayed.
      * @param array $options the tag options in terms of name-value pairs. The following options are specially handled:
      *
      * - showAllErrors: boolean, if set to true every error message for each attribute will be shown otherwise
@@ -248,7 +253,7 @@ class BaseJson
     /**
      * Return array of the validation errors.
      *
-     * @param Model|Model[] $models the model(s) whose validation errors are to be displayed.
+     * @param Model|array<Model> $models the model(s) whose validation errors are to be displayed.
      * @param bool $showAllErrors if set to true every error message for each attribute will be shown otherwise
      * only the first error message for each attribute will be shown.
      * @return array of the validation errors

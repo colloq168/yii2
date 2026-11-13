@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\widgets;
@@ -12,6 +13,7 @@ use yii\base\Widget;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
+use yii\web\JsExpression;
 use yii\web\Response;
 
 /**
@@ -31,7 +33,7 @@ use yii\web\Response;
  * The following example shows how to use Pjax with the [[\yii\grid\GridView]] widget so that the grid pagination,
  * sorting and filtering can be done via pjax:
  *
- * ```php
+ * ```
  * use yii\widgets\Pjax;
  *
  * Pjax::begin();
@@ -55,14 +57,14 @@ class Pjax extends Widget
      */
     public $options = [];
     /**
-     * @var string|false the jQuery selector of the links that should trigger pjax requests.
+     * @var string|null|false the jQuery selector of the links that should trigger pjax requests.
      * If not set, all links within the enclosed content of Pjax will trigger pjax requests.
      * If set to false, no code will be registered to handle links.
      * Note that if the response to the pjax request is a full page, a normal request will be sent again.
      */
     public $linkSelector;
     /**
-     * @var string|false the jQuery selector of the forms whose submissions should trigger pjax requests.
+     * @var string|null|false the jQuery selector of the forms whose submissions should trigger pjax requests.
      * If not set, all forms with `data-pjax` attribute within the enclosed content of Pjax will trigger pjax requests.
      * If set to false, no code will be registered to handle forms.
      * Note that if the response to the pjax request is a full page, a normal request will be sent again.
@@ -88,8 +90,10 @@ class Pjax extends Widget
      */
     public $timeout = 1000;
     /**
-     * @var bool|int how to scroll the page when pjax response is received. If false, no page scroll will be made.
-     * Use a number if you want to scroll to a particular place.
+     * @var JsExpression|bool|int how to scroll the page when pjax response is received. If false, no
+     * page scroll will be made. If true, the page will be scrolled to the pjax container. Use a number
+     * if you want to scroll to a particular place. A [[JsExpression]] with a callback function that
+     * receives the context and the current hash may be used to calculate the position dynamically.
      */
     public $scrollTo = false;
     /**
